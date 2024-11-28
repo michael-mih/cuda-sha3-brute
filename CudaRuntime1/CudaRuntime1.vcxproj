@@ -77,36 +77,30 @@
     </CudaCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <CudaCompile Include="HashAlgorithms.cu" />
+    <CudaCompile Include="kernel.cu" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="SHA-3\KeccakTests\KeccakTests.cpp" />
-    <ClCompile Include="SHA-3\SHA-3\Base64.cpp" />
-    <ClCompile Include="SHA-3\SHA-3\CommandParser.cpp" />
-    <ClCompile Include="SHA-3\SHA-3\HashFunction.cpp" />
-    <ClCompile Include="SHA-3\SHA-3\HashingTests.cpp" />
-    <ClCompile Include="SHA-3\SHA-3\Keccak.cpp" />
-    <ClCompile Include="SHA-3\SHA-3\SHA3 tests.cpp" />
-    <ClCompile Include="SHA-3\SHA-3\ShaTest.cpp" />
-    <ClCompile Include="SHA-3\SHA-3\stdafx.cpp" />
+    <ClCompile Include="SHA-3\Base64.cpp" />
+    <ClCompile Include="SHA-3\HashFunction.cpp" />
+    <ClCompile Include="SHA-3\Keccak.cpp" />
+    <ClCompile Include="SHA-3\stdafx.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="SHA-3\SHA-3\Base64.h" />
-    <ClInclude Include="SHA-3\SHA-3\CommandParser.h" />
-    <ClInclude Include="SHA-3\SHA-3\Endian.h" />
-    <ClInclude Include="SHA-3\SHA-3\HashFunction.h" />
-    <ClInclude Include="SHA-3\SHA-3\Hex.h" />
-    <ClInclude Include="SHA-3\SHA-3\Keccak.h" />
-    <ClInclude Include="SHA-3\SHA-3\Main.h" />
-    <ClInclude Include="SHA-3\SHA-3\ParserCommon.h" />
-    <ClInclude Include="SHA-3\SHA-3\RAII_Wrapper.h" />
-    <ClInclude Include="SHA-3\SHA-3\resource.h" />
-    <ClInclude Include="SHA-3\SHA-3\Rotation.h" />
-    <ClInclude Include="SHA-3\SHA-3\stdafx.h" />
-    <ClInclude Include="SHA-3\SHA-3\targetver.h" />
+    <ClInclude Include="SHA-3\Base64.h" />
+    <ClInclude Include="SHA-3\Endian.h" />
+    <ClInclude Include="SHA-3\HashFunction.h" />
+    <ClInclude Include="SHA-3\Hex.h" />
+    <ClInclude Include="SHA-3\Keccak.h" />
+    <ClInclude Include="SHA-3\Main.h" />
+    <ClInclude Include="SHA-3\ParserCommon.h" />
+    <ClInclude Include="SHA-3\RAII_Wrapper.h" />
+    <ClInclude Include="SHA-3\resource.h" />
+    <ClInclude Include="SHA-3\Rotation.h" />
+    <ClInclude Include="SHA-3\stdafx.h" />
+    <ClInclude Include="SHA-3\targetver.h" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="SHA-3\SHA-3\KeccakCli.rc" />
+    <ResourceCompile Include="SHA-3\KeccakCli.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
