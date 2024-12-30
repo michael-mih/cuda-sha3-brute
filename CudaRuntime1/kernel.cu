@@ -12,7 +12,10 @@
 #include "SHA-3/Keccak.h"
 #include "SHA-3/HashFunction.h"
 
-std::string hex_encode(std::string inpt, KeccakBase& k) {
+//TODO convert sha3 etc to .cu 
+
+__device__ std::string 
+hex_encode(std::string inpt, KeccakBase& k) {
 	const uint8_t* byte_array = reinterpret_cast<const uint8_t*>(inpt.data());
 	k.addData(byte_array, 0, inpt.length());
 	std::vector<unsigned char> op = k.digest();
@@ -28,9 +31,8 @@ __global__ void
 bruteSearch(std::string* hash, std::string** wordlist, size_t n) {
 	int index = threadIdx.x + blockIdx.x * blockDim.x; //blockDim.x threads per block
 	if (index < n) {
-		printf("index %d", index);
+		printf("index %d", hex_encode(*wordlist[index], Sha3(256)));
 	}
-	
 }
 
 
