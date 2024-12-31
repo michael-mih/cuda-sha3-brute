@@ -1,22 +1,22 @@
 #pragma once
 
 #include "stdafx.h"
-#include "HashFunction.h"
+#include "HashFunction.cuh"
 
 // State structure
 class KeccakBase : public HashFunction
 {
 public:
-	KeccakBase(unsigned int len);
+	__device__ KeccakBase(unsigned int len);
 	KeccakBase(const KeccakBase& other);
 	virtual ~KeccakBase();
 	KeccakBase& operator=(const KeccakBase& other);
-	virtual std::vector<unsigned char> digest() = 0;
+	__device__ virtual std::vector<unsigned char> digest() = 0;
 	virtual void addPadding() = 0;
 	void reset();
 	void keccakf();
-	void addData(uint8_t input) override;
-	void addData(const uint8_t *input, unsigned int off, unsigned int len) override;
+	__device__ void addData(uint8_t input) override;
+	__device__ void addData(const uint8_t *input, unsigned int off, unsigned int len) override;
 	void processBuffer();
 protected:
 	uint64_t *A;
@@ -32,7 +32,7 @@ public:
 	Sha3(unsigned int len);
 	Sha3(const Sha3& other);
 	Sha3& operator=(const Sha3& other);
-	std::vector<unsigned char> digest() override;
+	__device__ std::vector<unsigned char> digest() override;
 	void addPadding() override;
 private:
 };
@@ -43,7 +43,7 @@ public:
 	Keccak(unsigned int len);
 	Keccak(const Keccak& other);
 	Keccak& operator=(const Keccak& other);
-	std::vector<unsigned char> digest() override;
+	__device__ std::vector<unsigned char> digest() override;
 	void addPadding() override;
 private:
 };
@@ -54,7 +54,7 @@ public:
 	Shake(unsigned int len, unsigned int d_);
 	Shake(const Shake& other);
 	Shake& operator=(const Shake& other);
-	std::vector<unsigned char> digest() override;
+	__device__ std::vector<unsigned char> digest() override;
 	void addPadding() override;
 private:
 	unsigned int d;

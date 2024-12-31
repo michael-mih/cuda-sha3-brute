@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "HashFunction.h"
+#include "HashFunction.cuh"
 
 
 HashFunction::HashFunction(void)

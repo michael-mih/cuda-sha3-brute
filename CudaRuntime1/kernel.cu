@@ -2,15 +2,14 @@
 #include <fstream>
 
 #include <cuda_runtime.h>
-#include "cuda.h"
 #include "device_launch_parameters.h"
+
 #include <stdio.h>
 #include <openssl/sha.h>
 #include <string.h>
-
 #include "SHA-3/hex.h"
-#include "SHA-3/Keccak.h"
-#include "SHA-3/HashFunction.h"
+#include "SHA-3/Keccak.cuh"
+#include "SHA-3/HashFunction.cuh"
 
 //TODO convert sha3 etc to .cu 
 

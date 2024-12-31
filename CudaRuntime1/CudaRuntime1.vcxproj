@@ -81,16 +81,16 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="SHA-3\Base64.cpp" />
-    <ClCompile Include="SHA-3\HashFunction.cpp" />
-    <ClCompile Include="SHA-3\Keccak.cpp" />
+    <ClCompile Include="SHA-3\HashFunction.cu" />
+    <ClCompile Include="SHA-3\Keccak.cu" />
     <ClCompile Include="SHA-3\stdafx.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SHA-3\Base64.h" />
     <ClInclude Include="SHA-3\Endian.h" />
-    <ClInclude Include="SHA-3\HashFunction.h" />
+    <ClInclude Include="SHA-3\HashFunction.cuh" />
     <ClInclude Include="SHA-3\Hex.h" />
-    <ClInclude Include="SHA-3\Keccak.h" />
+    <ClInclude Include="SHA-3\Keccak.cuh" />
     <ClInclude Include="SHA-3\Main.h" />
     <ClInclude Include="SHA-3\ParserCommon.h" />
     <ClInclude Include="SHA-3\RAII_Wrapper.h" />

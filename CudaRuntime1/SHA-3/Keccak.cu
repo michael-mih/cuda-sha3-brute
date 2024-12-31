@@ -1,8 +1,11 @@
 #include "stdafx.h"
-#include "Keccak.h"
+#include "Keccak.cuh"
 
 #include "Endian.h"
 #include "Rotation.h"
+
+#include <cuda_runtime.h>
+#include "device_launch_parameters.h"
 
 // Constants of the Keccak algorithm.
 
@@ -76,7 +79,7 @@ KeccakBase& KeccakBase::operator=(const KeccakBase& other)
 	return *this;
 }
 
-Sha3::Sha3(unsigned int len_) : KeccakBase(len_)
+__device__ Sha3::Sha3(unsigned int len_) : KeccakBase(len_)
 {};
 
 Sha3::Sha3(const Sha3& other) : KeccakBase(other)
@@ -136,7 +139,8 @@ void KeccakBase::reset()
 // keccakUpdate - Functions to pack input data into a block
 
 //  One byte input at a time - process buffer if it's empty
-void KeccakBase::addData(uint8_t input)
+__device__ void 
+KeccakBase::addData(uint8_t input)
 {
 	buffer[bufferLen] = input;
 	if(++(bufferLen) == blockLen)
@@ -146,7 +150,7 @@ void KeccakBase::addData(uint8_t input)
 }
 
 //  Process a larger buffer with varying amounts of data in it
-void KeccakBase::addData(const uint8_t *input, unsigned int off, unsigned int len)
+__device__ void KeccakBase::addData(const uint8_t *input, unsigned int off, unsigned int len)
 {
 	while (len > 0)
 	{
@@ -213,7 +217,8 @@ std::vector<unsigned char> digest_generic(uint64_t *A, unsigned int hashLength, 
 // keccakDigest - called once all data has been few to the keccakUpdate functions
 //  Pads the structure (in case the input is not a multiple of the block length)
 //  returns the hash result in a char vector
-std::vector<unsigned char> Keccak::digest()
+__device__ std::vector<unsigned char> 
+Keccak::digest()
 {
 	return digest_generic(A, length,
 		[this]() { addPadding(); },
@@ -224,7 +229,8 @@ std::vector<unsigned char> Keccak::digest()
 // sha3Digest - called once all data has been few to the keccakUpdate functions
 //  Pads the structure (in case the input is not a multiple of the block length)
 //  returns the hash result in a char vector
-std::vector<unsigned char> Sha3::digest()
+__device__ std::vector<unsigned char>
+Sha3::digest()
 {
 	return digest_generic(A, length,
 		[this]() { addPadding(); },
@@ -235,7 +241,8 @@ std::vector<unsigned char> Sha3::digest()
 // shakeDigest - called once all data has been few to the keccakUpdate functions
 //  Pads the structure (in case the input is not a multiple of the block length)
 //  returns the hash result in a char vector
-std::vector<unsigned char> Shake::digest()
+__device__ std::vector<unsigned char> 
+Shake::digest()
 {
 	return digest_generic(A, d,
 		[this]() { addPadding(); },
