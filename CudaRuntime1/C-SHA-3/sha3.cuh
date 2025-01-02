@@ -6,7 +6,6 @@
 #define SHA3_H
 #include <cuda_runtime.h>
 #include <stdint.h>
-
 /* -------------------------------------------------------------------------
  * Works when compiled for either 32-bit or 64-bit targets, optimized for
  * 64 bit.
@@ -55,7 +54,9 @@ __device__ enum SHA3_RETURN {
 typedef enum SHA3_RETURN sha3_return_t;
 
 /* For Init or Reset call these: */
-__device__ sha3_return_t sha3_Init(void* priv, unsigned bitSize);
+
+__device__ sha3_return_t old_sha3_Init(void* priv, unsigned bitSize);
+
 
 __device__ void sha3_Init256(void* priv);
 
@@ -63,14 +64,14 @@ __device__ void sha3_Init256(void* priv);
 void sha3_Init384(void* priv);
 void sha3_Init512(void* priv);
 
-__device__ enum SHA3_FLAGS sha3_SetFlags(void* priv, enum SHA3_FLAGS);
+__device__ enum SHA3_FLAGS old_sha3_SetFlags(void* priv, enum SHA3_FLAGS);
 
-__device__ void sha3_Update(void* priv, void const* bufIn, size_t len);
+__device__ void old_sha3_Update(void* priv, void const* bufIn, size_t len);
 
-__device__ void const* sha3_Finalize(void* priv);
+__device__ void const* old_sha3_Finalize(void* priv);
 
 /* Single-call hashing */
-__device__ sha3_return_t sha3_HashBuffer(
+__device__ sha3_return_t old_sha3_HashBuffer(
     unsigned bitSize,   /* 256, 384, 512 */
     enum SHA3_FLAGS flags, /* SHA3_FLAGS_NONE or SHA3_FLAGS_KECCAK */
     const void* in, unsigned inBytes,

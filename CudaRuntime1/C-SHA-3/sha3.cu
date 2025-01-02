@@ -116,8 +116,9 @@ keccakf(uint64_t s[25])
 /* *************************** Public Inteface ************************ */
 
 /* For Init or Reset call these: */
+
 __device__ sha3_return_t
-sha3_Init(void* priv, unsigned bitSize) {
+old_sha3_Init(void* priv, unsigned bitSize) {
     sha3_context* ctx = (sha3_context*)priv;
     if (bitSize != 256 && bitSize != 384 && bitSize != 512)
         return SHA3_RETURN_BAD_PARAMS;
@@ -129,23 +130,23 @@ sha3_Init(void* priv, unsigned bitSize) {
 __device__ void
 sha3_Init256(void* priv)
 {
-    sha3_Init(priv, 256);
+    old_sha3_Init(priv, 256);
 }
 
 void
 sha3_Init384(void* priv)
 {
-    sha3_Init(priv, 384);
+    old_sha3_Init(priv, 384);
 }
 
 void
 sha3_Init512(void* priv)
 {
-    sha3_Init(priv, 512);
+    old_sha3_Init(priv, 512);
 }
 
 enum SHA3_FLAGS
-    sha3_SetFlags(void* priv, enum SHA3_FLAGS flags)
+    old_sha3_SetFlags(void* priv, enum SHA3_FLAGS flags)
 {
     sha3_context* ctx = (sha3_context*)priv;
     //flags &= SHA3_FLAGS_KECCAK;
@@ -156,7 +157,7 @@ enum SHA3_FLAGS
 
 
 __device__ void
-sha3_Update(void* priv, void const* bufIn, size_t len)
+old_sha3_Update(void* priv, void const* bufIn, size_t len)
 {
     sha3_context* ctx = (sha3_context*)priv;
 
@@ -250,7 +251,7 @@ sha3_Update(void* priv, void const* bufIn, size_t len)
  * bytes are always present, but they can be the same byte.
  */
 __device__ void const*
-sha3_Finalize(void* priv)
+old_sha3_Finalize(void* priv)
 {
     sha3_context* ctx = (sha3_context*)priv;
 
@@ -304,18 +305,18 @@ sha3_Finalize(void* priv)
     return (ctx->u.sb);
 }
 
-sha3_return_t sha3_HashBuffer(unsigned bitSize, enum SHA3_FLAGS flags, const void* in, unsigned inBytes, void* out, unsigned outBytes) {
+sha3_return_t old_sha3_HashBuffer(unsigned bitSize, enum SHA3_FLAGS flags, const void* in, unsigned inBytes, void* out, unsigned outBytes) {
     sha3_return_t err;
     sha3_context c;
 
-    err = sha3_Init(&c, bitSize);
+    err = old_sha3_Init(&c, bitSize);
     if (err != SHA3_RETURN_OK)
         return err;
-    if (sha3_SetFlags(&c, flags) != flags) {
+    if (old_sha3_SetFlags(&c, flags) != flags) {
         return SHA3_RETURN_BAD_PARAMS;
     }
-    sha3_Update(&c, in, inBytes);
-    const void* h = sha3_Finalize(&c);
+    old_sha3_Update(&c, in, inBytes);
+    const void* h = old_sha3_Finalize(&c);
 
     if (outBytes > bitSize / 8)
         outBytes = bitSize / 8;
