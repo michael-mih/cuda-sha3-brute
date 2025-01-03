@@ -14,9 +14,9 @@
 //TODO convert sha3 etc to .cu 
 
 __device__ std::string 
-hex_encode(std::string inpt, KeccakBase& k) {
-	const uint8_t* byte_array = reinterpret_cast<const uint8_t*>(inpt.data());
-	k.addData(byte_array, 0, inpt.length());
+hex_encode(char inpt[], size_t inpt_len, KeccakBase& k) {
+	const uint8_t* byte_array = reinterpret_cast<const uint8_t*>(inpt);
+	k.addData(byte_array, 0, inpt_len);
 	std::vector<unsigned char> op = k.digest();
 	std::ostringstream b;
 	for (auto& oi : op)
@@ -30,12 +30,12 @@ __global__ void
 bruteSearch(std::string* hash, std::string** wordlist, size_t n) {
 	int index = threadIdx.x + blockIdx.x * blockDim.x; //blockDim.x threads per block
 	if (index < n) {
-		printf("index %d", hex_encode(*wordlist[index], Sha3(256)));
+		printf("index %d", hex_encode(*wordlist[index], *wordlist[index] Sha3(256)));
 	}
 }
 
 
-cudaError_t loadParallelHashes(std::string desiredHash, std::string* wordlist, size_t wordlistLength) //todo array decay?
+cudaError_t loadParallelHashes(std::string desiredHash, char** wordlist, size_t wordlistLength) //todo array decay?
 {
 #define THREADS_PER_BLOCK 512;
 	std::string* dev_desiredHash = 0;
@@ -102,10 +102,15 @@ int main(int argc, char* argv[]) {
 	while (std::getline(stream, curLine)) {
 		numLines++;
 	}
+	
+	char** charArray = new char* [numLines];
+	
 	std::string* wordlist = new std::string[numLines];
 	std::ifstream readStream("file.txt");
 	int i = 0;
 	while (std::getline(readStream, curLine)) {
+		charArray[i] = new char[curLine.size() + 1];
+		std::
 		wordlist[i] = curLine;
 		std::cout << wordlist[i] << '\n';
 		i++;

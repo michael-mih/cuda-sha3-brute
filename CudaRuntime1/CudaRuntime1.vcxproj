@@ -55,6 +55,7 @@
     </Link>
     <CudaCompile>
       <TargetMachinePlatform>64</TargetMachinePlatform>
+      <GenerateRelocatableDeviceCode>true</GenerateRelocatableDeviceCode>
     </CudaCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -77,30 +78,13 @@
     </CudaCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <CudaCompile Include="kernel.cu" />
+    <CudaCompile Include="c-adapt-kernel.cu" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="SHA-3\Base64.cpp" />
-    <ClCompile Include="SHA-3\HashFunction.cu" />
-    <ClCompile Include="SHA-3\Keccak.cu" />
-    <ClCompile Include="SHA-3\stdafx.cpp" />
+    <ClCompile Include="C-SHA-3\sha3.cu" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="SHA-3\Base64.h" />
-    <ClInclude Include="SHA-3\Endian.h" />
-    <ClInclude Include="SHA-3\HashFunction.cuh" />
-    <ClInclude Include="SHA-3\Hex.h" />
-    <ClInclude Include="SHA-3\Keccak.cuh" />
-    <ClInclude Include="SHA-3\Main.h" />
-    <ClInclude Include="SHA-3\ParserCommon.h" />
-    <ClInclude Include="SHA-3\RAII_Wrapper.h" />
-    <ClInclude Include="SHA-3\resource.h" />
-    <ClInclude Include="SHA-3\Rotation.h" />
-    <ClInclude Include="SHA-3\stdafx.h" />
-    <ClInclude Include="SHA-3\targetver.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="SHA-3\KeccakCli.rc" />
+    <ClInclude Include="C-SHA-3\sha3.cuh" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
