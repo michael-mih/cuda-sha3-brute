@@ -286,14 +286,14 @@ sha3_HashBuffer(unsigned bitSize, enum SHA3_FLAGS flags, const void* in, unsigne
 }
 
 __global__ void
-bruteSearch(char** ptr_hash, char*** ptr_wordlist, size_t n) {
+bruteSearch(char* hash, char** wordlist, size_t n) {
 	int index = threadIdx.x + blockIdx.x * blockDim.x; //blockDim.x threads per block
 	if (index == 0) {
 		sha3_context c;
 		unsigned char buf[32];
-		sha3_HashBuffer(256, SHA3_FLAGS_NONE, "abc", 3, buf, sizeof(buf));
-		//const void* hash = sha3_Finalize(&c);
 		
+		sha3_HashBuffer(256, SHA3_FLAGS_NONE, wordlist[index], wordlist[index], buf, sizeof(buf));
+
 		for (size_t i = 0; i < 32; ++i) {
 			printf("%02x", buf[i]); // Print each byte as a two-digit hex value
 		}
@@ -303,11 +303,11 @@ bruteSearch(char** ptr_hash, char*** ptr_wordlist, size_t n) {
 }
 
 
-cudaError_t loadParallelHashes(char* desiredHash, size_t unhashed_size, char** wordlist, size_t wordlistLength) //todo array decay?
+cudaError_t loadParallelHashes(char* desiredHash, size_t unhashed_size, char** wordlist, size_t wordlistSize, size_t numLines) //todo array decay?
 {
 #define THREADS_PER_BLOCK 512;
-	char** dev_desiredHash = 0;
-	char*** dev_wordlist = 0;
+	char* dev_desiredHash = 0;
+	char** dev_wordlist = 0;
 
 	cudaError_t cudaStatus;
 	cudaStatus = cudaSetDevice(0);
@@ -322,24 +322,24 @@ cudaError_t loadParallelHashes(char* desiredHash, size_t unhashed_size, char** w
 		fprintf(stderr, "cudaMalloc failed!");
 		goto Error;
 	}
-	cudaStatus = cudaMemcpy(dev_desiredHash, &desiredHash, unhashed_size, cudaMemcpyHostToDevice);
+	cudaStatus = cudaMemcpy(dev_desiredHash, desiredHash, unhashed_size, cudaMemcpyHostToDevice);
 	if (cudaStatus != cudaSuccess) {
 		fprintf(stderr, "cudaMemcpy failed!");
 		goto Error;
 	}
 
 	//malloc and cpy for wordlist
-	cudaStatus = cudaMalloc((void****)&dev_wordlist, wordlistLength);
+	cudaStatus = cudaMalloc((void***)&dev_wordlist, wordlistSize);
 	if (cudaStatus != cudaSuccess) {
 		fprintf(stderr, "cudaMalloc failed!");
 		goto Error;
 	}
-	cudaStatus = cudaMemcpy(dev_wordlist, &wordlist, wordlistLength, cudaMemcpyHostToDevice);
+	cudaStatus = cudaMemcpy(dev_wordlist, wordlist, wordlistSize, cudaMemcpyHostToDevice);
 
-	int numBlocks = wordlistLength / THREADS_PER_BLOCK;
+	int numBlocks = numLines / THREADS_PER_BLOCK;
 
 	//bruteSearch<<<(wordlistLength/THREADS_PER_BLOCK), THREADS_PER_BLOCK>>>(dev_desiredHash, dev_wordlist);
-	bruteSearch << <1, 512 >> > (dev_desiredHash, dev_wordlist, wordlistLength);
+	bruteSearch << <1, 512 >> > (dev_desiredHash, dev_wordlist, numLines);
 	cudaStatus = cudaGetLastError();
 	if (cudaStatus != cudaSuccess)
 	{
@@ -367,10 +367,11 @@ int main(int argc, char* argv[]) {
 	std::ifstream stream("file.txt");
 
 	std::vector<std::string> v;
-
+	size_t wordlistSize = 0;
 	int numLines = 0;
 	while (std::getline(stream, curLine)) {
 		numLines++;
+		wordlistSize += curLine.size();
 		v.push_back(curLine);
 	}
 
@@ -381,8 +382,8 @@ int main(int argc, char* argv[]) {
 	}
 
 	std::cout << "starting parallelization" << '\n';
-	
-	loadParallelHashes("test", 4, charArray, numLines);
+
+	loadParallelHashes("test", 4, charArray, wordlistSize, numLines);
 
 
 }
