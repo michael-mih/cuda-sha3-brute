@@ -284,6 +284,21 @@ sha3_HashBuffer(unsigned bitSize, enum SHA3_FLAGS flags, const void* in, unsigne
 	return SHA3_RETURN_OK;
 }
 
+//microsoft crt memcmp
+__device__ int 
+memcmp(const void* buf1, const void* buf2, size_t count)
+{
+	if (!count)
+		return(0);
+
+	while (--count && *(char*)buf1 == *(char*)buf2) {
+		buf1 = (char*)buf1 + 1;
+		buf2 = (char*)buf2 + 1;
+	}
+
+	return(*((unsigned char*)buf1) - *((unsigned char*)buf2));
+}
+
 __global__ void
 bruteSearch(char* hash, char* wordlist, size_t n) {
 	int index = threadIdx.x + blockIdx.x * blockDim.x; //blockDim.x threads per block
@@ -293,17 +308,19 @@ bruteSearch(char* hash, char* wordlist, size_t n) {
 		sha3_context c;
 		unsigned char buf[32];
 		sha3_HashBuffer(256, SHA3_FLAGS_NONE, wordlist + index + 1, 4, buf, sizeof(buf));
-
-		for (size_t i = 0; i < 32; ++i) {
-			printf("%02x %s", buf[i]); // Print each byte as a two-digit hex value
+		if (memcmp(hash, buf, 32) == 0) {
+			printf("HASH BROKEN WITH WORD \"%s\"", wordlist + index + 1);
 		}
-		printf("\n");
+		/*for (size_t i = 0; i < 32; ++i) {
+			printf("%02x", buf[i]); // Print each byte as a two-digit hex value
+		}
+		printf("\n"); */
 
 	}
 }
 
 
-cudaError_t loadParallelHashes(const char* desiredHash, size_t unhashed_size, const char* wordlist, size_t wordlist_size) //todo array decay?
+cudaError_t loadParallelHashes(unsigned char* desiredHash, size_t unhashed_size, const char* wordlist, size_t wordlist_size) //todo array decay?
 {
 #define THREADS_PER_BLOCK 512;
 	char* dev_desiredHash = 0;
@@ -382,7 +399,7 @@ int main(int argc, char* argv[]) {
 	const char* ptr = ODcharArray.c_str();
 	std::cout << "starting parallelization" << '\n';
 
-	loadParallelHashes("test", 4, ptr, size);
+	loadParallelHashes(buf, 32, ptr, size);
 
 
 }

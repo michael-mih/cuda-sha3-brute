@@ -42,12 +42,12 @@ typedef struct sha3_context_ {
                                  * words (e.g. 16 for Keccak 512) */
 } sha3_context;
 
-__device__ enum SHA3_FLAGS {
+ enum SHA3_FLAGS {
     SHA3_FLAGS_NONE = 0,
     SHA3_FLAGS_KECCAK = 1
 };
 
-__device__ enum SHA3_RETURN {
+ enum SHA3_RETURN {
     SHA3_RETURN_OK = 0,
     SHA3_RETURN_BAD_PARAMS = 1
 };
@@ -55,23 +55,23 @@ typedef enum SHA3_RETURN sha3_return_t;
 
 /* For Init or Reset call these: */
 
-__device__ sha3_return_t old_sha3_Init(void* priv, unsigned bitSize);
+ sha3_return_t old_sha3_Init(void* priv, unsigned bitSize);
 
 
-__device__ void sha3_Init256(void* priv);
+ void sha3_Init256(void* priv);
 
 
 void sha3_Init384(void* priv);
 void sha3_Init512(void* priv);
 
-__device__ enum SHA3_FLAGS old_sha3_SetFlags(void* priv, enum SHA3_FLAGS);
+ enum SHA3_FLAGS old_sha3_SetFlags(void* priv, enum SHA3_FLAGS);
 
-__device__ void old_sha3_Update(void* priv, void const* bufIn, size_t len);
+ void old_sha3_Update(void* priv, void const* bufIn, size_t len);
 
-__device__ void const* old_sha3_Finalize(void* priv);
+ void const* old_sha3_Finalize(void* priv);
 
 /* Single-call hashing */
-__device__ sha3_return_t old_sha3_HashBuffer(
+ sha3_return_t old_sha3_HashBuffer(
     unsigned bitSize,   /* 256, 384, 512 */
     enum SHA3_FLAGS flags, /* SHA3_FLAGS_NONE or SHA3_FLAGS_KECCAK */
     const void* in, unsigned inBytes,
