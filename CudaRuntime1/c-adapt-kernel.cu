@@ -299,6 +299,10 @@ memcmp(const void* buf1, const void* buf2, size_t count)
 	return(*((unsigned char*)buf1) - *((unsigned char*)buf2));
 }
 
+static int blocksPerGrid;
+static int threadsPerBlock;
+
+
 __global__ void
 bruteSearch(char* hash, char* wordlist, size_t n) {
 	int index = threadIdx.x + blockIdx.x * blockDim.x; //blockDim.x threads per block
@@ -306,15 +310,17 @@ bruteSearch(char* hash, char* wordlist, size_t n) {
 		
 		//printf("%s", (wordlist + index+1));
 		sha3_context c;
+		int size = 1;
+		while (*(wordlist + index + size) != '\0') {
+			size++;
+		}
+		
+	
 		unsigned char buf[32];
-		sha3_HashBuffer(256, SHA3_FLAGS_NONE, wordlist + index + 1, 4, buf, sizeof(buf));
+		sha3_HashBuffer(256, SHA3_FLAGS_NONE, wordlist + index + 1, size-1, buf, sizeof(buf));
 		if (memcmp(hash, buf, 32) == 0) {
 			printf("HASH BROKEN WITH WORD \"%s\"", wordlist + index + 1);
 		}
-		/*for (size_t i = 0; i < 32; ++i) {
-			printf("%02x", buf[i]); // Print each byte as a two-digit hex value
-		}
-		printf("\n"); */
 
 	}
 }
@@ -353,10 +359,10 @@ cudaError_t loadParallelHashes(unsigned char* desiredHash, size_t unhashed_size,
 	}
 	cudaStatus = cudaMemcpy(dev_wordlist, wordlist, wordlist_size, cudaMemcpyHostToDevice);
 
-
+	//dim3 threadsPerBlock = 
 
 	//bruteSearch<<<(wordlistLength/THREADS_PER_BLOCK), THREADS_PER_BLOCK>>>(dev_desiredHash, dev_wordlist);
-	bruteSearch << <1, 512 >> > (dev_desiredHash, dev_wordlist, wordlist_size);
+	bruteSearch << <blocksPerGrid, threadsPerBlock >> > (dev_desiredHash, dev_wordlist, wordlist_size);
 	cudaStatus = cudaGetLastError();
 	if (cudaStatus != cudaSuccess)
 	{
@@ -378,28 +384,37 @@ int main(int argc, char* argv[]) {
 		numThreads = 2;
 	}
 
-	std::string curLine;
-	std::ifstream stream("file.txt");
-	char* desiredText = "test";
-	unsigned char buf[32];
-	old_sha3_HashBuffer(256, SHA3_FLAGS_NONE, desiredText, 4, buf, sizeof(buf));
+	cudaDeviceProp deviceProp;
+	cudaGetDeviceProperties(&deviceProp, 0);
+	std::cout << "threads per block: " << deviceProp.maxThreadsPerBlock << std::endl; //1024
+	std::cout << "Number of SMs: " << deviceProp.multiProcessorCount << std::endl; //30
+	std::cout << "Max threads per SM: " << deviceProp.maxThreadsPerMultiProcessor << std::endl; //1024
 
-	std::vector<std::string> v;
-	
+	threadsPerBlock = 256;
+	std::string curLine;
+	std::ifstream stream("rockyou.txt");
+	char* desiredText = "barbs";
+	unsigned char buf[32];
+	old_sha3_HashBuffer(256, SHA3_FLAGS_NONE, desiredText, 5, buf, sizeof(buf));
+
 	std::string ODcharArray = "";
+	int* byteArray;
 	ODcharArray += '\0';
 	size_t size = 0;
-
+	int workload = 0;
+	
+	std::cout << "loading wordlist" << "\n";
 	while (std::getline(stream, curLine)) {
 		ODcharArray += curLine + '\0';
 		size += curLine.size() + 1;
-		v.push_back(curLine);
+		workload++;
 	}
 
-	const char* ptr = ODcharArray.c_str();
+	blocksPerGrid = (std::ceil(workload / threadsPerBlock));
+
 	std::cout << "starting parallelization" << '\n';
 
-	loadParallelHashes(buf, 32, ptr, size);
+	loadParallelHashes(buf, 32, ODcharArray.c_str(), size);
 
 
 }
