@@ -12,7 +12,7 @@
 
 std::tuple<size_t, size_t> readFile(char const* fname, std::string& charArray)
 {
-    static const auto BUFFER_SIZE = 16 * 1024;
+    static const auto BUFFER_SIZE = 16 * 1024; //needs optimize
     HANDLE file = CreateFileA(fname, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
     if (file == INVALID_HANDLE_VALUE)
     {
@@ -25,11 +25,8 @@ std::tuple<size_t, size_t> readFile(char const* fname, std::string& charArray)
     size_t size = 0;
     while (ReadFile(file, buf, BUFFER_SIZE, &bytesRead, NULL) && bytesRead > 0)
     {
-        buf[bytesRead] = '\0';  // Null-terminate the buffer
+        buf[bytesRead] = '\0'; 
         //while p can still find a newline
-       /* for (char* p = buf; (p = strchr(p, '\n')) != nullptr; ++p)
-            ++lines;
-         */
         char* lag = buf;
         for (char* p = buf; (p = strchr(p, '\n')) != nullptr; ++p){
             *p = '\0';

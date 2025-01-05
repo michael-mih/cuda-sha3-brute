@@ -11,6 +11,7 @@
 #include <vector>
 #include <tuple>
 #include "C-SHA-3/sha3.cuh"
+
 #define SHA3_ASSERT( x )
 #define SHA3_TRACE( format, ...)
 #define SHA3_TRACE_BUF(format, buf, l)
@@ -287,7 +288,7 @@ sha3_HashBuffer(unsigned bitSize, enum SHA3_FLAGS flags, const void* in, unsigne
 	return SHA3_RETURN_OK;
 }
 
-//microsoft crt memcmp
+//microsoft crt memcmp implementation
 __device__ int 
 memcmp(const void* buf1, const void* buf2, size_t count)
 {
@@ -305,22 +306,17 @@ memcmp(const void* buf1, const void* buf2, size_t count)
 static int blocksPerGrid;
 static int threadsPerBlock;
 
-
-
-
 __global__ void
 bruteSearch(char* hash, char* wordlist, size_t n) {
 	int index = threadIdx.x + blockIdx.x * blockDim.x; //blockDim.x threads per block
 	if (index < n-1 && wordlist[index] == '\0') {
-		
-		//printf("%s", (wordlist + index+1));
+
 		sha3_context c;
 		int size = 1;
 		while (*(wordlist + index + size) != '\0') {
 			size++;
 		}
-		
-	
+
 		unsigned char buf[32];
 		sha3_HashBuffer(256, SHA3_FLAGS_NONE, wordlist + index + 1, size-1, buf, sizeof(buf));
 		if (memcmp(hash, buf, 32) == 0) {
@@ -364,9 +360,8 @@ cudaError_t loadParallelHashes(unsigned char* desiredHash, size_t unhashed_size,
 	}
 	cudaStatus = cudaMemcpy(dev_wordlist, wordlist, wordlist_size, cudaMemcpyHostToDevice);
 
-	//dim3 threadsPerBlock = 
 
-	//bruteSearch<<<(wordlistLength/THREADS_PER_BLOCK), THREADS_PER_BLOCK>>>(dev_desiredHash, dev_wordlist);
+
 	bruteSearch << <blocksPerGrid, threadsPerBlock >> > (dev_desiredHash, dev_wordlist, wordlist_size);
 	cudaStatus = cudaGetLastError();
 	if (cudaStatus != cudaSuccess)
@@ -392,15 +387,9 @@ int main(int argc, char* argv[]) {
 		numThreads = 2;
 	}
 
-	cudaDeviceProp deviceProp;
-	cudaGetDeviceProperties(&deviceProp, 0);
-	std::cout << "threads per block: " << deviceProp.maxThreadsPerBlock << std::endl; //1024
-	std::cout << "Number of SMs: " << deviceProp.multiProcessorCount << std::endl; //30
-	std::cout << "Max threads per SM: " << deviceProp.maxThreadsPerMultiProcessor << std::endl; //1024
-
 	threadsPerBlock = 256;
 	std::string curLine;
-	//std::ifstream stream("rockyou.txt");
+
 	char* desiredText = "barbs";
 	unsigned char buf[32];
 	old_sha3_HashBuffer(256, SHA3_FLAGS_NONE, desiredText, 5, buf, sizeof(buf));
@@ -412,18 +401,11 @@ int main(int argc, char* argv[]) {
 	int workload = 0;
 	
 	std::cout << "loading wordlist" << "\n";
-	/*while (std::getline(stream, curLine)) {
-		charArray += curLine + '\0';
-		size += curLine.size() + 1;
-		workload++;
-	} */
-
 	std::tuple<size_t, size_t> t = readFile("rockyou.txt", charArray);
 	
-	blocksPerGrid = (std::ceil(std::get<0>(t) / threadsPerBlock));
+	blocksPerGrid = (std::ceil(std::get<0>(t) / threadsPerBlock)); //ceil, need at least one block
 
 	std::cout << "starting parallelization" << '\n';
-
 	loadParallelHashes(buf, 32, charArray.c_str(), std::get<1>(t));
 
 
