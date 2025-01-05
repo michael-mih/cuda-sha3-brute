@@ -43,3 +43,13 @@ std::tuple<size_t, size_t> readFile(char const* fname, std::string& charArray)
     CloseHandle(file);
     return { lines, size };
 }
+
+void hexInputToBytes(const char* input, unsigned char* buffer, size_t buffsize) {
+    for (size_t i = 0; i < buffsize; ++i)
+    {
+        char byteHex[3] = { input[2 * i], input[2 * i + 1], '\0' };  // Two hex chars per byte
+        if (!std::isxdigit(byteHex[0]) || !std::isxdigit(byteHex[1]))
+            throw std::invalid_argument("Invalid hexadecimal character found.");
+        buffer[i] = static_cast<unsigned char>(std::strtoul(byteHex, nullptr, 16));
+    }
+}

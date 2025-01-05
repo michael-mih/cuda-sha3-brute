@@ -376,32 +376,25 @@ Error:
 }
 
 
-
-
 int main(int argc, char* argv[]) {
 	int numThreads;
-	if (argc == 2) {
-		numThreads = atoi(argv[1]);
-	}
-	else {
-		numThreads = 2;
+	if (argc != 3) {
+		std::cerr << "arg1 hash arg2 wordlist";
+		return 1;
 	}
 
 	threadsPerBlock = 256;
-	std::string curLine;
 
-	char* desiredText = "barbs";
 	unsigned char buf[32];
-	old_sha3_HashBuffer(256, SHA3_FLAGS_NONE, desiredText, 5, buf, sizeof(buf));
+	hexInputToBytes(argv[1], buf, sizeof(buf));
 
 	std::string charArray = "";
-	int* byteArray;
 	charArray += '\0';
 	size_t size = 0;
 	int workload = 0;
 	
 	std::cout << "loading wordlist" << "\n";
-	std::tuple<size_t, size_t> t = readFile("rockyou.txt", charArray);
+	std::tuple<size_t, size_t> t = readFile(argv[2], charArray);
 	
 	blocksPerGrid = (std::ceil(std::get<0>(t) / threadsPerBlock)); //ceil, need at least one block
 
