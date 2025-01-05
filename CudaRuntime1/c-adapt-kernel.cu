@@ -290,7 +290,7 @@ sha3_HashBuffer(unsigned bitSize, enum SHA3_FLAGS flags, const void* in, unsigne
 
 //microsoft crt memcmp implementation
 __device__ int 
-omemcmp(const void* buf1, const void* buf2, size_t count)
+own_memcmp(const void* buf1, const void* buf2, size_t count)
 {
 	if (!count)
 		return(0);
