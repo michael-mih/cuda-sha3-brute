@@ -290,7 +290,7 @@ sha3_HashBuffer(unsigned bitSize, enum SHA3_FLAGS flags, const void* in, unsigne
 
 //microsoft crt memcmp implementation
 __device__ int 
-memcmp(const void* buf1, const void* buf2, size_t count)
+omemcmp(const void* buf1, const void* buf2, size_t count)
 {
 	if (!count)
 		return(0);
@@ -319,7 +319,7 @@ bruteSearch(char* hash, char* wordlist, size_t n) {
 
 		unsigned char buf[32];
 		sha3_HashBuffer(256, SHA3_FLAGS_NONE, wordlist + index + 1, size-1, buf, sizeof(buf));
-		if (memcmp(hash, buf, 32) == 0) {
+		if (own_memcmp(hash, buf, 32) == 0) {
 			printf("HASH BROKEN WITH WORD \"%s\"", wordlist + index + 1);
 		}
 
@@ -369,6 +369,7 @@ cudaError_t loadParallelHashes(unsigned char* desiredHash, size_t unhashed_size,
 		fprintf(stderr, "Failed to launch. (error code %s)!\n", cudaGetErrorString(cudaStatus));
 		exit(EXIT_FAILURE);
 	}
+	cudaDeviceSynchronize();
 
 
 Error:
@@ -400,8 +401,8 @@ int main(int argc, char* argv[]) {
 
 	std::cout << "starting parallelization" << '\n';
 	loadParallelHashes(buf, 32, charArray.c_str(), std::get<1>(t));
-
-
+	std::cout << '\n' << "finished!";
+	return 0;
 }
 
 
